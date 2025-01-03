@@ -1,4 +1,5 @@
-[
+{
+    "intents":[
     {
         "tag": "greeting",
         "patterns": [
@@ -3348,3 +3349,5 @@
         ]
     }
 ]
+
+}

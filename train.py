@@ -5,13 +5,13 @@ from tensorflow.keras import Sequential
 from tensorflow.keras.layers import Dense, Dropout
 from sklearn.preprocessing import LabelEncoder
 from sklearn.feature_extraction.text import CountVectorizer
-import random
-import streamlit as st
 
 # Load intents from JSON
-with open('intents.json', 'r') as file:
-    intents_data = json.load(file)
-    intents = intents_data['intents']
+def load_intents():
+    with open('intents.json', 'r') as file:
+        return json.load(file)['intents']
+
+intents = load_intents()
 
 # Preprocess data
 patterns = []
@@ -55,33 +55,3 @@ with open("vectorizer.json", "w") as f:
     json.dump(vectorizer.get_feature_names_out().tolist(), f)
 
 print("Model trained and saved successfully.")
-
-# Streamlit Chatbot Interface
-def get_response(user_input):
-    input_data = vectorizer.transform([user_input]).toarray()
-    prediction = model.predict(input_data)
-    tag = encoder.inverse_transform([np.argmax(prediction)])[0]
-    for intent in intents:
-        if intent['tag'] == tag:
-            return random.choice(intent['responses'])
-    return "Sorry, I didn't understand that."
-
-st.title("Chatbot")
-st.write("Hello! Ask me anything.")
-
-if 'responses' not in st.session_state:
-    st.session_state.responses = []
-
-# Process input and store chat history
-def process_input():
-    user_input = st.session_state.user_input
-    response = get_response(user_input)
-    st.session_state.responses.append((user_input, response))
-    st.session_state.user_input = ""
-
-st.text_input("You: ", key="user_input", on_change=process_input)
-
-# Display chat history
-for user_msg, bot_msg in reversed(st.session_state.responses):
-    st.write(f"You: {user_msg}")
-    st.write(f"Bot: {bot_msg}")
